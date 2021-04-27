@@ -42,6 +42,11 @@ function pushPend (event) {
         text: spanText,
         id: addId
     };
+    pendingList.removeChild(parent);
+    const cleanPend =  pending.filter(function(toDo){
+        return toDo.id !== parseInt(parent.id);
+    });
+    pending = cleanPend
     li.append(span);
     finishedList.appendChild(li);
     finished.push(obj);
