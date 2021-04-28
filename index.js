@@ -1,7 +1,8 @@
 const form = document.querySelector(".js-form"),
     input = form.querySelector("input"),
     pendingList = document.querySelector(".js-pending"),
-    finishedList = document.querySelector(".js-finished");
+    finishedList = document.querySelector(".js-finished"),
+    list = document.querySelector("list");
 
 const PENDING_LS = "pending",
     FINISHED_LS = "finished";
@@ -20,36 +21,55 @@ function saveFinished(){
 function deletePend (event){
     const pendBtn = event.target;
     const li = pendBtn.parentNode;
-    pendingList.removeChild(li);
+    const parent = li.parentNode;
+    finishedList.removeChild(li);
     const cleanPend =  pending.filter(function(toDo){
         return toDo.id !== parseInt(li.id);
     });
     pending = cleanPend
     savePending();
 }
+function deletefinish (event){
+    const pendBtn = event.target;
+    const li = pendBtn.parentNode;
+    const parent = li.parentNode;
+    finishedList.removeChild(li);
+    const cleanFinish =  finished.filter(function(toDo){
+        return toDo.id !== parseInt(li.id);
+    });
+    finished = cleanFinish
+    saveFinished();
+}
 
 function pushPend (event) {
     const pendBtn = event.target;
     const parent = pendBtn.parentNode;
+    const ulParent = parent.parentNode;
     const addId = parent.id;
     const br = pendBtn.previousSibling;
-    const addspan = br.previousSibling;
-    const spanText = addspan.innerHTML;
-    const li = document.createElement("li");
-    const span = document.createElement("span")
-    span.innerText = spanText;
+    const addSpan = br.previousSibling;
+    const spanText = addSpan.innerHTML;
     const obj = {
         text: spanText,
         id: addId
     };
-    pendingList.removeChild(parent);
-    const cleanPend =  pending.filter(function(toDo){
-        return toDo.id !== parseInt(parent.id);
-    });
-    pending = cleanPend
-    li.append(span);
-    finishedList.appendChild(li);
-    finished.push(obj);
+    if (pendingList.className == ulParent.className){
+        finishedList.append(parent);
+        const cleanPend =  pending.filter(function(toDo){
+            return toDo.id !== parseInt(parent.id);
+        });
+        finished.push(obj);
+        pending = cleanPend
+    } else {
+        pendingList.append(parent)
+        const cleanFinish =  finished.filter(function(toDo){
+            return toDo.id !== parseInt(parent.id);
+        });
+        pending.push(obj);
+        
+        finished = cleanFinish
+    };
+    
     savePending();
     saveFinished();
 }
@@ -87,17 +107,27 @@ function handleSubmit (event) {
 
 function loadList (){
     const loadedPending = localStorage.getItem(PENDING_LS);
-    const loadedFinished = localStorage.getItem(FINISHED_LS);
     if (loadedPending !== null) {
         const parsedPending = JSON.parse(loadedPending);
         parsedPending.forEach (function(toDo){
             paintToDo(toDo.text);
-        })
+        });
+    }
+}
+function loadFinish (){
+    const loadedFinish = localStorage.getItem(FINISHED_LS);
+    if (loadedFinish !== null) {
+        const parsedFinish = JSON.parse(loadedFinish);
+        parsedFinish.forEach (function(toDo){
+            paintToDo(toDo.text);
+        });
     }
 }
 
+
 function init (){
     loadList();
+    loadFinish();
     form.addEventListener("submit", handleSubmit);
 }
 
